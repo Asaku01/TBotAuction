@@ -35,7 +35,7 @@ export class MSQLDB{
 
     constructor(){
         this.connection = createPool(connectionData);//createConnection(connectionData);
-        this.connection.connect();
+        //this.connection.connect();
     }
 
     doQuery(sql:string):Promise<QueryResult>{
