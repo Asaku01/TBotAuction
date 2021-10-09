@@ -19,6 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "typescript": "^4.4.2",
+    "@types/node": "^16.7.10",
     "@grammyjs/router": "^1.1.0",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
