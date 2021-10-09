@@ -6,8 +6,8 @@ import { resourceLimits } from "worker_threads";
 
 export const connectionData = {
     host     : process.env.RDS_HOSTNAME??'',
-    user     : process.env.RDS_USERNAME??'',
-    password : process.env.RDS_PASSWORD??'',
+    user     : process.env.DB_USERNAME??'',
+    password : process.env.DB_PASSWORD??'',
     database : process.env.RDS_DATABASE??'',
     port     : Number(process.env.RDS_PORT)??6033
 };
