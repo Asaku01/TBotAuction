@@ -1,5 +1,5 @@
 import { channel } from "diagnostics_channel";
-import { createConnection, FieldPacket, OkPacket, RowDataPacket } from "mysql2";
+import { createConnection, createPool, FieldPacket, OkPacket, Pool, RowDataPacket } from "mysql2";
 import Connection from "mysql2/typings/mysql/lib/Connection";
 import Query from "mysql2/typings/mysql/lib/protocol/sequences/Query";
 import { resourceLimits } from "worker_threads";
@@ -9,7 +9,10 @@ export const connectionData = {
     user     : process.env.DB_USERNAME??'',
     password : process.env.DB_PASSWORD??'',
     database : process.env.RDS_DATABASE??'',
-    port     : Number(process.env.RDS_PORT)??6033
+    port     : Number(process.env.RDS_PORT)??6033,
+    connectionLimit : 10,
+    queueLimit: 0,
+    waitForConnections: true
 };
 
 export interface QueryResult{
@@ -28,10 +31,10 @@ export interface InsertQueryResult{
 }
 
 export class MSQLDB{
-    connection: Connection;
+    connection: Pool;
 
     constructor(){
-        this.connection = createConnection(connectionData);
+        this.connection = createPool(connectionData);//createConnection(connectionData);
         this.connection.connect();
     }
 
