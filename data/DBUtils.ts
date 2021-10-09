@@ -5,11 +5,11 @@ import Query from "mysql2/typings/mysql/lib/protocol/sequences/Query";
 import { resourceLimits } from "worker_threads";
 
 export const connectionData = {
-    host     : process.env.DB_HOST??'',
-    user     : process.env.DB_USER??'',
-    password : process.env.DB_PASSWORD??'',
-    database : process.env.DB_DATABASE??'',
-    port     : Number(process.env.DB_PORT)??6033
+    host     : process.env.RDS_HOSTNAME??'',
+    user     : process.env.RDS_USERNAME??'',
+    password : process.env.RDS_PASSWORD??'',
+    database : process.env.RDS_DATABASE??'',
+    port     : Number(process.env.RDS_PORT)??6033
 };
 
 export interface QueryResult{
