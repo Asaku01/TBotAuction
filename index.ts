@@ -81,9 +81,11 @@ bot.command('start', async (ctx) =>{
 
     if(auction?.status === "ENDED"){
         ctx.reply(`Mi dispiace @${ctx.from?.username}(${ctx.from?.first_name}) L'asta a cui stai provando a registrati è terminata`);
+        return;
     }
     if(auction?.status === "CANCELED"){
         ctx.reply(`Mi dispiace @${ctx.from?.username}(${ctx.from?.first_name}) L'asta a cui stai provando a registrati è stata cancellata.`);
+        return;
     }
 
     logger.info(`Request from user ${ctx.from?.first_name}(@${ctx.from?.username}) to be notified about auction "${auction?.title}"(${auction?.channel_sequence})`, {service: "register_user_for_auction"});
