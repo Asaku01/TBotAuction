@@ -233,7 +233,7 @@ async function perpetualCheckAste(interval:number){
             notifyAt(60 * 10, 2, "end_date", auction, `L'asta "${auction.title}"(${auction.channel_sequence}) terminerà fra 10 minuti! \n${await composeNotifyList(auction)}`);
             
             notifyAt(10, 2, "start_date", auction, `L'asta "${auction.title}"(${auction.channel_sequence}) partirà tra 10 secondi! \n${await composeNotifyList(auction)}`);
-            notifyAt(60, 5, "start_date", auction, `L'asta "${auction.title}"(${auction.channel_sequence}) partirà tra 1 minuto! \n${await composeNotifyList(auction)}`);
+            notifyAt(60, 2, "start_date", auction, `L'asta "${auction.title}"(${auction.channel_sequence}) partirà tra 1 minuto! \n${await composeNotifyList(auction)}`);
             notifyAt(60 * 10, 2, "start_date", auction, `L'asta "${auction.title}"(${auction.channel_sequence}) partirà tra 10 minuti! \n${await composeNotifyList(auction)}`);
         }
     });
