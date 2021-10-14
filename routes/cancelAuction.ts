@@ -198,7 +198,9 @@ cancelAuctionRouter.route("cancelAuctionConfirm", async(ctx, next)=>{
 
         let participants = (await db.getAuctionOtherParticipants(-1, ctx.session.cancelAuction.auction.channel_sequence)).results
         await participants.forEach(participant=>{
-            ctx.api.sendMessage(participant.private_chat_id, `L'asta "${ctx.session.cancelAuction.auction.title}"(${ctx.session.cancelAuction.auction.channel_sequence}) e' stata cancellata. Ci scusiamo per l'inconvenienza.`);
+            ctx.api.sendMessage(participant.private_chat_id, `L'asta "${ctx.session.cancelAuction.auction.title}"(${ctx.session.cancelAuction.auction.channel_sequence}) e' stata cancellata. Ci scusiamo per l'inconvenienza.`).catch(error=>{
+                logger.error(error);
+            });
         })
 
         await ctx.reply("Auction cancelled, all participants have been notified.");

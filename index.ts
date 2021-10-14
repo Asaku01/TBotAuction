@@ -193,10 +193,14 @@ bot.hears(/^(\d+)$/, async(ctx, next)=>{
 
     db.getAuctionOtherParticipants(ctx.from?.id??0, auction?.channel_sequence).then(response=>{
         response.results.forEach(async otherParticipant=>{
-            await ctx.api.sendMessage(otherParticipant.private_chat_id, `@${ctx.from?.username}(${ctx.from?.first_name}) ha offerto ${formatAuctionCurrency(offer, auction)} per l'asta "${auction?.title}"(${auction?.channel_sequence})!`);
+            await ctx.api.sendMessage(otherParticipant.private_chat_id, `@${ctx.from?.username}(${ctx.from?.first_name}) ha offerto ${formatAuctionCurrency(offer, auction)} per l'asta "${auction?.title}"(${auction?.channel_sequence})!`).catch(error=>{
+                logger.error(error);
+            });
             const keyboard = new Keyboard().text(`/bid_${auction?.channel_sequence}`);
             if(otherParticipant.user_id == maxOffer?.user_id) await ctx.api.sendMessage(otherParticipant.private_chat_id, `Ciao @${maxOffer?.user_name}(${maxOffer?.first_name})! La tua offerta per l'asta "${auction?.title}"(${auction?.channel_sequence}) è stata superata da @${ctx.from?.username}(${ctx.from?.first_name}), vuoi rilanciare? /bid_${auction?.channel_sequence}`,{
                 reply_markup: keyboard
+            }).catch(error=>{
+                logger.error(error);
             });
         });
     });
@@ -245,7 +249,9 @@ async function handleAuctionOpening(auction:any){
     updateAuctionMessage(auction);
 
     (await db.getAuctionOtherParticipants(-1, auction.channel_sequence)).results.forEach(participant=>{
-        bot.api.sendMessage(participant.private_chat_id, `Ciao ${participant.user_name}(${participant.first_name}), l'asta "${auction.title}"(${auction.channel_sequence}) è iniziata, puoi cominciare a fare le tue offerte.`);
+        bot.api.sendMessage(participant.private_chat_id, `Ciao ${participant.user_name}(${participant.first_name}), l'asta "${auction.title}"(${auction.channel_sequence}) è iniziata, puoi cominciare a fare le tue offerte.`).catch(error=>{
+            logger.error(error);
+        });
     })
 }
 
@@ -258,12 +264,16 @@ async function handelAuctionClosure(auction:any){
     if(!maxBidQuery.result){
         replyToThread(auction, `L'asta "${auction.title}"(${auction.channel_sequence}) è terminata. Non c'e' stato alcun vincitore.`);
         (await db.getAuctionOtherParticipants(-1, auction.channel_sequence)).results.forEach(participant=>{
-            bot.api.sendMessage(participant.private_chat_id, `L'asta "${auction.title}"(${auction.channel_sequence}) è terminata. Non c'e' stato alcun vincitore.`);
+            bot.api.sendMessage(participant.private_chat_id, `L'asta "${auction.title}"(${auction.channel_sequence}) è terminata. Non c'e' stato alcun vincitore.`).catch(error=>{
+                logger.error(error);
+            });
         })
     }else{
         replyToThread(auction, `L'asta "${auction.title}"(${auction.channel_sequence}) è terminata, il vincitore è @${maxBidQuery.result.user_name}(${maxBidQuery.result?.first_name}) con l'offerta più alta di ${formatAuctionCurrency(maxBidQuery.result?.offer, auction)}, congratulazioni e grazie per aver partecipato! \n${await composeNotifyList(auction)}`);
         (await db.getAuctionOtherParticipants(-1, auction.channel_sequence)).results.forEach(participant=>{
-            bot.api.sendMessage(participant.private_chat_id, `L'asta "${auction.title}"(${auction.channel_sequence}) è terminata, il vincitore è @${maxBidQuery.result?.user_name}(${maxBidQuery.result?.first_name}) con l'offerta più alta di ${formatAuctionCurrency(maxBidQuery.result?.offer, auction)}, grazie per aver partecipato!`);
+            bot.api.sendMessage(participant.private_chat_id, `L'asta "${auction.title}"(${auction.channel_sequence}) è terminata, il vincitore è @${maxBidQuery.result?.user_name}(${maxBidQuery.result?.first_name}) con l'offerta più alta di ${formatAuctionCurrency(maxBidQuery.result?.offer, auction)}, grazie per aver partecipato!`).catch(error=>{
+                logger.error(error);
+            });
         })
     }
 
@@ -278,7 +288,9 @@ async function handleAuctionClosureEarly(auction:any){
     updateAuctionMessage(auction);
 
     (await db.getAuctionOtherParticipants(-1, auction.channel_sequence)).results.forEach(participant=>{
-        bot.api.sendMessage(participant.private_chat_id, `L'asta "${auction.title}"(${auction.channel_sequence}) si è chiusa automaticamente, poichè non è stato raggiunto il numero minimo di partecipanti.`);
+        bot.api.sendMessage(participant.private_chat_id, `L'asta "${auction.title}"(${auction.channel_sequence}) si è chiusa automaticamente, poichè non è stato raggiunto il numero minimo di partecipanti.`).catch(error=>{
+            logger.error(error);
+        });
     })
 }
 

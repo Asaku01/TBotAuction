@@ -182,10 +182,14 @@ bidRouter.route("B_bidValue", async(ctx, next)=>{
 
     db.getAuctionOtherParticipants(ctx.from?.id??0, ctx.session.B_auction.channel_sequence).then(response=>{
         response.results.forEach(async otherParticipant=>{
-            await ctx.api.sendMessage(otherParticipant.private_chat_id, `@${ctx.from?.username}(${ctx.from?.first_name}) ha offerto ${formatAuctionCurrency(bid, ctx.session.B_auction)} per l'asta "${ctx.session.B_auction.title}"!`);
+            await ctx.api.sendMessage(otherParticipant.private_chat_id, `@${ctx.from?.username}(${ctx.from?.first_name}) ha offerto ${formatAuctionCurrency(bid, ctx.session.B_auction)} per l'asta "${ctx.session.B_auction.title}"!`).catch(error=>{
+                logger.error(error);
+            });
             const keyboard = new Keyboard().text(`/bid_${ctx.session.B_auction.channel_sequence}`);
             if(otherParticipant.user_id == highest_bid?.user_id) await ctx.api.sendMessage(otherParticipant.private_chat_id, `Ciao @${highest_bid?.user_name}(${highest_bid?.first_name})! La tua offerta per l'asta "${ctx.session.B_auction.title}"(${ctx.session.B_auction.channel_sequence}) è stata superata da @${ctx.from?.username}(${ctx.from?.first_name}), vuoi rilanciare? /bid_${ctx.session.B_auction.channel_sequence}`,{
                 reply_markup: keyboard
+            }).catch(error=>{
+                logger.error(error);
             });
         });
     });

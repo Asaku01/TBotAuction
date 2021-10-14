@@ -634,7 +634,9 @@ newAuctionRouter.route("finale", async(ctx)=>{
         const inlineKeyboard = new InlineKeyboard()/*.text("register", `register_user_for_auction:${update_data.insertId}`)*/.url("register2", `https://t.me/TBAuctionBot?start=${update_data.insertId}`);
         await ctx.api.sendMessage(ctx.session.insertAuction.channelId + "", "Register to the above auction by clicking the button below.",{
             reply_markup: inlineKeyboard
-        })
+        }).catch(error=>{
+            logger.error(error);
+        });
 
         //let auction = (await db.getAuctionBySequence(update_data.insertId)).result;
 

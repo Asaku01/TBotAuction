@@ -112,8 +112,15 @@ export async function replyToThread(auction:any, message:string){
 }
 
 export async function replyToMessage(channel_id:any, message:string, message_id:any){
+    if(!channel_id) {
+        logger.warn(`Trying to reply to a message (probably comment section) that doesn't exist. (bad channel_id)`)
+        return;
+    }
+
     return bot.api.sendMessage(channel_id, message,{
         reply_to_message_id: message_id
+    }).catch(error=>{
+        logger.error(error);
     });
 }
 
