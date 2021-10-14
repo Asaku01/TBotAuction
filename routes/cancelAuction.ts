@@ -39,6 +39,7 @@ export async function goToRouteCancelAuctionSelectChannel(ctx:AuctionContext){
         ctx.session.channelIdMapping?.set(alphabet[index], channel.channel_id_sequence);
         channelList = channelList.concat(`${alphabet[index]}. ${channel.chat_title} \n`);
         kb.text(alphabet[index]);
+        index++;
     })
 
     ctx.session.step = "cancelAuctionSelectChannel";
@@ -68,7 +69,7 @@ newAuctionRouter.route("cancelAuctionSelectChannel", async(ctx, next)=>{
 
     let added_by_id = ctx.update?.message?.from?.id ?? 0;
 
-    console.log("PREPARING TO RETRIEVE CHANNEL");
+    console.log(`PREPARING TO RETRIEVE CHANNEL ${added_by_increment}`);
     db.getChannelByUser(added_by_id, Number(added_by_increment)).then(async response=>{
         
         console.log("CHANNEL RETRIEVED");
