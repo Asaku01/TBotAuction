@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { Bot, InlineKeyboard, Keyboard, session } from "grammy";
+import { Bot, GrammyError, HttpError, InlineKeyboard, Keyboard, session } from "grammy";
 import { AuctionContext } from './types/AuctionContext';
 import { SessionData } from './types/SessionData';
 import { newAuctionRouter, goToRouteChannelId } from './routes/insertAuction';
@@ -211,6 +211,19 @@ bot.hears(/^(\d+)$/, async(ctx, next)=>{
 bot.use(newAuctionRouter);
 bot.use(bidRouter);
 bot.use(cancelAuctionRouter);
+
+bot.catch(error=>{
+    const ctx = error.ctx;
+    logger.error(`Error while handling update ${ctx.update.update_id}:`);
+    const e = error.error;
+    if (e instanceof GrammyError) {
+        logger.error(`Error in request: ${JSON.stringify(e)}`);
+    } else if (e instanceof HttpError) {
+        logger.error(`Could not contact Telegram: ${JSON.stringify(e)}`);
+    } else {
+        logger.error(`Unknown error: ${JSON.stringify(e)}`);
+    }
+})
 
 bot.start();
 

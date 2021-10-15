@@ -66,6 +66,8 @@ export async function updateAuctionMessage(auction:any){
         parse_mode: "HTML",
         caption_entities: undefined,
         reply_markup: undefined
+      }).catch(error=>{
+          logger.error(error);
       });
 }
 
