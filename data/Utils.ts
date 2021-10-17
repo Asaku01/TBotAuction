@@ -98,7 +98,7 @@ Data Partenza: ${auction.start_date?.toLocaleString("it-IT", {timeZone: "Europe/
 Data Fine: ${auction.end_date?.toLocaleString("it-IT", {timeZone: "Europe/Rome"})} ${remainingTimeUntilEnd}
 Prezzo Partenza: ${formatAuctionCurrency(auction.start_price, auction)}
 Minimo Partecipanti: ${auction.min_biders}
-Minima Offerta: ${formatAuctionCurrency(auction.min_bid, auction)}
+Minimo Rialzo: ${formatAuctionCurrency(auction.min_bid, auction)}
 
 Offerta piu' alta: ${maxBiderMsg}
 
