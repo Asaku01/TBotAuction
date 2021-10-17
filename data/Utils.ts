@@ -71,7 +71,7 @@ export async function updateAuctionMessage(auction:any){
       });
 }
 
-export async function getAuctionMessage(auction:any, maxBid:any){
+export async function getAuctionMessage(auction:any, maxBid:any):Promise<string>{
 
     let maxBiderMsg = "";
     if(maxBid){
@@ -84,25 +84,25 @@ export async function getAuctionMessage(auction:any, maxBid:any){
         formattedList = formattedList.concat(`\n@${user.user_name}(${user.first_name})`);
     });
 
-    let remainingTimeUntilStart = auction.start_date < new Date()?"": `COUNTDOWN: <b>${TimeUtils.getOreRimanenti(auction.start_date)}h${TimeUtils.getMinutiRimanenti(auction.start_date)}m</b>`;
+    let remainingTimeUntilStart = auction.start_date < new Date()?"": `RIMANENTE: <b>${TimeUtils.getOreRimanenti(auction.start_date)}h${TimeUtils.getMinutiRimanenti(auction.start_date)}m</b>`;
     let remainingTimeUntilEnd = "";
-    if(!remainingTimeUntilStart) remainingTimeUntilEnd = auction.end_date < new Date()?"": `COUNTDOWN: <b>${TimeUtils.getOreRimanenti(auction.end_date)}h${TimeUtils.getMinutiRimanenti(auction.end_date)}m</b>`;
+    if(!remainingTimeUntilStart) remainingTimeUntilEnd = auction.end_date < new Date()?"": `RIMANENTE: <b>${TimeUtils.getOreRimanenti(auction.end_date)}h${TimeUtils.getMinutiRimanenti(auction.end_date)}m</b>`;
 
 
     let caption:string = 
-`Auction: ${auction.title}
-Description: ${auction.description}
-Status: ${auction.status}
+`Asta: ${auction.title}
+Descrizione: ${auction.description}
+Stato: ${auction.status}
 
-Start Date: ${auction.start_date?.toLocaleString("it-IT", {timeZone: "Europe/Rome"})} ${remainingTimeUntilStart}
-End Date: ${auction.end_date?.toLocaleString("it-IT", {timeZone: "Europe/Rome"})} ${remainingTimeUntilEnd}
-Starting Price: ${formatAuctionCurrency(auction.start_price, auction)}
-Minimum Biders: ${auction.min_biders}
-Minimum Bid: ${formatAuctionCurrency(auction.min_bid, auction)}
+Data Partenza: ${auction.start_date?.toLocaleString("it-IT", {timeZone: "Europe/Rome"})} ${remainingTimeUntilStart}
+Data Fine: ${auction.end_date?.toLocaleString("it-IT", {timeZone: "Europe/Rome"})} ${remainingTimeUntilEnd}
+Prezzo Partenza: ${formatAuctionCurrency(auction.start_price, auction)}
+Minimo Partecipanti: ${auction.min_biders}
+Minima Offerta: ${formatAuctionCurrency(auction.min_bid, auction)}
 
-Highest price: ${maxBiderMsg}
+Offerta piu' alta: ${maxBiderMsg}
 
-REGISTERED USERS (${notifyList.length}/${auction.min_biders})
+ISCRITTI (${notifyList.length}/${auction.min_biders})
 ${formattedList}`;
 
     return caption;

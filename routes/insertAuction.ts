@@ -3,7 +3,7 @@ import type { AuctionContext } from '../types/AuctionContext';
 import { InlineKeyboard, Keyboard } from 'grammy';
 import { InputMediaPhoto } from 'grammy/out/platform';
 import { db } from '../data/DBUtils';
-import { dateRegexFormat, logger, TimeUtils, formatCurrency } from '../data/Utils';
+import { dateRegexFormat, logger, TimeUtils, formatCurrency, getAuctionMessage } from '../data/Utils';
 import { isDataView } from 'util/types';
 
 const newAuctionRouter = new Router<AuctionContext>((ctx)=>ctx.session.step);
@@ -463,20 +463,11 @@ newAuctionRouter.route("otherImagesId", async(ctx)=>{
     ctx.session.insertAuction.otherImagesId?.push(photoId);
 });
 
-function getAuctionMessage(ctx:AuctionContext){
+async function getAuctionMessagePreview(ctx:AuctionContext, maxBid:any){
     let imgList:Array<InputMediaPhoto> = [{
         type: "photo",
         media: ctx.session.insertAuction.coverImageId??"",
-        caption: 
-`Auction: ${ctx.session.insertAuction.title}
-Description: ${ctx.session.insertAuction.description}
-Status: PENDING
-
-Start Date: ${ctx.session.insertAuction.startDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"})}
-End Date: ${ctx.session.insertAuction.endDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"})}
-Starting Price: ${formatCurrency(ctx.session.insertAuction.startPrice??"", ctx.session.insertAuction.currencyCountryCode??"", {style:"currency", currency: ctx.session.insertAuction.currency??""})}
-Minimum Biders: ${ctx.session.insertAuction.minPlayers}
-Minimum Bid: ${formatCurrency(ctx.session.insertAuction.minBid??"", ctx.session.insertAuction.currencyCountryCode??"", {style:"currency", currency: ctx.session.insertAuction.currency??""})}`,
+        caption: await getAuctionMessage(convertCtxToAuction(ctx), null),
         parse_mode: "HTML",
         caption_entities: undefined
     }];
@@ -620,18 +611,18 @@ newAuctionRouter.route("finale", async(ctx)=>{
 
     if(ctx.msg?.text === "preview"){
         await ctx.reply("One preview coming up!");
-        await ctx.api.sendMediaGroup(ctx.update.message?.chat?.id + "", getAuctionMessage(ctx));
+        await ctx.api.sendMediaGroup(ctx.update.message?.chat?.id + "", await getAuctionMessagePreview(ctx, null));
         goToRouteFinale(ctx);
         return;
     }
 
     if(ctx.msg?.text === "save and publish"){
-        let response = await ctx.api.sendMediaGroup(ctx.session.insertAuction.channelId + "", getAuctionMessage(ctx));
+        let response = await ctx.api.sendMediaGroup(ctx.session.insertAuction.channelId + "", await getAuctionMessagePreview(ctx, null));
         let messageId:number = 0;
         if(response.length>0) messageId = response[0].message_id;
         let update_data = (await db.insertAuction(ctx.session.insertAuction.channelId ?? 0, ctx.session.insertAuction.title ?? "", ctx.session.insertAuction.description ?? "", ctx.session.insertAuction.startDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"}).replace(",","")??"", ctx.session.insertAuction.endDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"}).replace(",","")??"", ctx.session.insertAuction.startPrice??0, ctx.session.insertAuction.minPlayers??0, ctx.session.insertAuction.minBid??0, ctx.session.insertAuction.coverImageId??"", ctx.session.insertAuction.otherImagesId?.join()??"", ctx.from?.username??"", ctx.from?.id??0, messageId, ctx.session.insertAuction.currency??"", ctx.session.insertAuction.currencyCountryCode??"")).result;
         
-        const inlineKeyboard = new InlineKeyboard()/*.text("register", `register_user_for_auction:${update_data.insertId}`)*/.url("register2", `https://t.me/TBAuctionBot?start=${update_data.insertId}`);
+        const inlineKeyboard = new InlineKeyboard()/*.text("register", `register_user_for_auction:${update_data.insertId}`)*/.url("registrati", `https://t.me/TBAuctionBot?start=${update_data.insertId}`);
         await ctx.api.sendMessage(ctx.session.insertAuction.channelId + "", "Register to the above auction by clicking the button below.",{
             reply_markup: inlineKeyboard
         }).catch(error=>{
@@ -654,5 +645,26 @@ newAuctionRouter.route("finale", async(ctx)=>{
     }
 
 });
+
+function convertCtxToAuction(ctx:AuctionContext){
+
+    let auction:any = {};
+    auction.status = "PENDING";
+    auction.channel_id = ctx.session.insertAuction.channelId;
+    auction.channel_sequence = 0;
+    auction.title = ctx.session.insertAuction.title;
+    auction.description = ctx.session.insertAuction.description;
+    auction.start_date = ctx.session.insertAuction.startDate;
+    auction.end_date = ctx.session.insertAuction.endDate;
+    auction.start_price = ctx.session.insertAuction.startPrice;
+    auction.min_biders = ctx.session.insertAuction.minPlayers;
+    auction.min_bid = ctx.session.insertAuction.minBid;
+    auction.cover_image_id = ctx.session.insertAuction.coverImageId;
+    auction.other_images_id = ctx.session.insertAuction.otherImagesId;
+    auction.currency_country_code = ctx.session.insertAuction.currencyCountryCode;
+    auction.currency = ctx.session.insertAuction.currency;
+
+    return auction;
+}
 
 export {newAuctionRouter};
