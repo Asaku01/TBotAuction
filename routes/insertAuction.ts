@@ -616,7 +616,7 @@ newAuctionRouter.route("finale", async(ctx)=>{
                 logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
             });
         
-            ctx.reply("An error occurred: " + JSON.stringify(error)).catch(error=>{
+            ctx.reply("An error occurred, please fix the auction information and then retry: " + JSON.stringify(error)).catch(error=>{
                 logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
             });
         });
@@ -637,13 +637,15 @@ newAuctionRouter.route("finale", async(ctx)=>{
                 logger.error(error);
             });
         }).catch(error=>{
-            ctx.reply("Something went wrong, if you're not saying any further description, check the logs.").catch(error=>{
+            ctx.reply("Something went wrong, if you're not seeing any further description, check the logs.").catch(error=>{
                 logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
             });
         
-            ctx.reply("An error occurred: " + JSON.stringify(error)).catch(error=>{
+            ctx.reply("An error occurred, you cannot publish this auction: " + JSON.stringify(error)).catch(error=>{
                 logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
             });
+
+            goToRouteFinale(ctx);
         });
 
         //let auction = (await db.getAuctionBySequence(update_data.insertId)).result;

@@ -225,7 +225,7 @@ bot.catch(error=>{
         logger.error(`Unknown error: ${JSON.stringify(e)}`);
     }
 
-    ctx.reply("Something went wrong, if you're not saying any further description, check the logs.").catch(error=>{
+    ctx.reply("Something went wrong, if you're not seeing any further description, check the logs.").catch(error=>{
         logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(e)}`);
     });
 
