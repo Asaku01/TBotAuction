@@ -611,22 +611,39 @@ newAuctionRouter.route("finale", async(ctx)=>{
 
     if(ctx.msg?.text === "preview"){
         await ctx.reply("One preview coming up!");
-        await ctx.api.sendMediaGroup(ctx.update.message?.chat?.id + "", await getAuctionMessagePreview(ctx, null));
+        await ctx.api.sendMediaGroup(ctx.update.message?.chat?.id + "", await getAuctionMessagePreview(ctx, null)).catch(error=>{
+            ctx.reply("Something went wrong, if you're not saying any further description, check the logs.").catch(error=>{
+                logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
+            });
+        
+            ctx.reply("An error occurred: " + JSON.stringify(error)).catch(error=>{
+                logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
+            });
+        });
         goToRouteFinale(ctx);
         return;
     }
 
     if(ctx.msg?.text === "save and publish"){
-        let response = await ctx.api.sendMediaGroup(ctx.session.insertAuction.channelId + "", await getAuctionMessagePreview(ctx, null));
-        let messageId:number = 0;
-        if(response.length>0) messageId = response[0].message_id;
-        let update_data = (await db.insertAuction(ctx.session.insertAuction.channelId ?? 0, ctx.session.insertAuction.title ?? "", ctx.session.insertAuction.description ?? "", ctx.session.insertAuction.startDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"}).replace(",","")??"", ctx.session.insertAuction.endDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"}).replace(",","")??"", ctx.session.insertAuction.startPrice??0, ctx.session.insertAuction.minPlayers??0, ctx.session.insertAuction.minBid??0, ctx.session.insertAuction.coverImageId??"", ctx.session.insertAuction.otherImagesId?.join()??"", ctx.from?.username??"", ctx.from?.id??0, messageId, ctx.session.insertAuction.currency??"", ctx.session.insertAuction.currencyCountryCode??"")).result;
-        
-        const inlineKeyboard = new InlineKeyboard()/*.text("register", `register_user_for_auction:${update_data.insertId}`)*/.url("registrati", `https://t.me/TBAuctionBot?start=${update_data.insertId}`);
-        await ctx.api.sendMessage(ctx.session.insertAuction.channelId + "", "Register to the above auction by clicking the button below.",{
-            reply_markup: inlineKeyboard
+        await ctx.api.sendMediaGroup(ctx.session.insertAuction.channelId + "", await getAuctionMessagePreview(ctx, null)).then(async response=>{
+            let messageId:number = 0;
+            if(response.length>0) messageId = response[0].message_id;
+            let update_data = (await db.insertAuction(ctx.session.insertAuction.channelId ?? 0, ctx.session.insertAuction.title ?? "", ctx.session.insertAuction.description ?? "", ctx.session.insertAuction.startDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"}).replace(",","")??"", ctx.session.insertAuction.endDate?.toLocaleString("it-IT", {timeZone: "Europe/Rome"}).replace(",","")??"", ctx.session.insertAuction.startPrice??0, ctx.session.insertAuction.minPlayers??0, ctx.session.insertAuction.minBid??0, ctx.session.insertAuction.coverImageId??"", ctx.session.insertAuction.otherImagesId?.join()??"", ctx.from?.username??"", ctx.from?.id??0, messageId, ctx.session.insertAuction.currency??"", ctx.session.insertAuction.currencyCountryCode??"")).result;
+            
+            const inlineKeyboard = new InlineKeyboard()/*.text("register", `register_user_for_auction:${update_data.insertId}`)*/.url("registrati", `https://t.me/TBAuctionBot?start=${update_data.insertId}`);
+            await ctx.api.sendMessage(ctx.session.insertAuction.channelId + "", "Register to the above auction by clicking the button below.",{
+                reply_markup: inlineKeyboard
+            }).catch(error=>{
+                logger.error(error);
+            });
         }).catch(error=>{
-            logger.error(error);
+            ctx.reply("Something went wrong, if you're not saying any further description, check the logs.").catch(error=>{
+                logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
+            });
+        
+            ctx.reply("An error occurred: " + JSON.stringify(error)).catch(error=>{
+                logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(error)}`);
+            });
         });
 
         //let auction = (await db.getAuctionBySequence(update_data.insertId)).result;
