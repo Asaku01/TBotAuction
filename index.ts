@@ -216,6 +216,7 @@ bot.catch(error=>{
     const ctx = error.ctx;
     logger.error(`Error while handling update ${ctx.update.update_id}:`);
     const e = error.error;
+
     if (e instanceof GrammyError) {
         logger.error(`Error in request: ${JSON.stringify(e)}`);
     } else if (e instanceof HttpError) {
@@ -223,6 +224,10 @@ bot.catch(error=>{
     } else {
         logger.error(`Unknown error: ${JSON.stringify(e)}`);
     }
+
+    ctx.reply("An error occurred: " + JSON.stringify(e)).catch(error=>{
+        logger.error(`Error during error notification to user @${ctx.from?.username}(${ctx.from?.first_name}): ${JSON.stringify(e)}`);
+    });
 })
 
 bot.start();
